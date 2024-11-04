@@ -1,7 +1,6 @@
 import { ethers, network, upgrades } from 'hardhat'
 import { readDeployedContracts, writeDeployedContracts } from '../utils/io'
 import {
-	getL1MessengerAddress,
 	getUSDCAddress,
 	getWBTCAddress,
 } from '../utils/addressBook'
@@ -10,20 +9,7 @@ import { getCounterPartNetwork } from '../utils/counterPartNetwork'
 
 async function main() {
 	let deployedContracts = await readDeployedContracts()
-	if (!deployedContracts.mockL1ScrollMessenger) {
-		console.log('deploying mockL1ScrollMessenger')
-		const MockL1ScrollMessenger_ = await ethers.getContractFactory(
-			'MockL1ScrollMessenger',
-		)
-		const l1ScrollMessenger = await MockL1ScrollMessenger_.deploy()
-		const deployedContracts = await readDeployedContracts()
-		await writeDeployedContracts({
-			mockL1ScrollMessenger: await l1ScrollMessenger.getAddress(),
-			...deployedContracts,
-		})
-		await sleep(30)
-	}
-
+	
 	if (!deployedContracts.l1Contribution) {
 		console.log('deploying l1Contribution')
 		const contributionFactory = await ethers.getContractFactory('Contribution')
@@ -52,13 +38,12 @@ async function main() {
 			throw new Error('l1Contribution address is not set')
 		}
 
-		const analyzer = (await ethers.getSigners())[1]
+		const analyzer = (await ethers.getSigners())[0]
 		const liquidityFactory = await ethers.getContractFactory('Liquidity')
-		const initialERC20Tokens = [getUSDCAddress(), getWBTCAddress()]
+		const initialERC20Tokens: any[] = []
 		const liquidity = await upgrades.deployProxy(
 			liquidityFactory,
 			[
-				await getL1MessengerAddress(),
 				deployedL2Contracts.rollup,
 				deployedL2Contracts.withdrawal,
 				analyzer.address,
@@ -69,6 +54,10 @@ async function main() {
 				kind: 'uups',
 			},
 		)
+
+		console.log('liquidity deployed')
+		// sleep 5 secs
+		await sleep(5)
 
 		// grant roles
 		if (!deployedContracts.l1Contribution) {

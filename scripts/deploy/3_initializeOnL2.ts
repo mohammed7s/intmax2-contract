@@ -1,6 +1,5 @@
 import { ethers } from 'hardhat'
 import { readDeployedContracts } from '../utils/io'
-import { getL2MessengerAddress } from '../utils/addressBook'
 import { sleep } from '../../utils/sleep'
 import { getCounterPartNetwork } from '../utils/counterPartNetwork'
 
@@ -50,7 +49,6 @@ async function main() {
 		await sleep(10)
 		console.log('Initializing Rollup')
 		const tx = await rollup.initialize(
-			await getL2MessengerAddress(),
 			deployedL1Contracts.liquidity,
 			deployedL2Contracts.blockBuilderRegistry,
 			deployedL2Contracts.l2Contribution,
@@ -65,7 +63,6 @@ async function main() {
 		await sleep(10)
 		console.log('Initializing Withdrawal')
 		const tx = await withdrawal.initialize(
-			await getL2MessengerAddress(),
 			deployedL2Contracts.withdrawalPlonkVerifier,
 			deployedL1Contracts.liquidity,
 			deployedL2Contracts.rollup,

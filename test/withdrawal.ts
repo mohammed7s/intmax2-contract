@@ -42,13 +42,6 @@ describe('Withdrawal', function () {
 		const mockPlonkVerifier = await mockPlonkVerifierFactory.deploy()
 		const mockPlonkVerifierAddress = await mockPlonkVerifier.getAddress()
 
-		const mockL2MessengerFactory = await ethers.getContractFactory(
-			'MockL2ScrollMessenger',
-		)
-		const mockL2ScrollMessenger = await mockL2MessengerFactory.deploy()
-		const mockL2ScrollMessengerAddress =
-			await mockL2ScrollMessenger.getAddress()
-
 		const withdrawalFactory = await ethers.getContractFactory('Withdrawal')
 		withdrawal = (await upgrades.deployProxy(withdrawalFactory, [], {
 			initializer: false,
@@ -56,7 +49,6 @@ describe('Withdrawal', function () {
 		})) as unknown as Withdrawal
 
 		await withdrawal.initialize(
-			mockL2ScrollMessengerAddress,
 			mockPlonkVerifierAddress,
 			ethers.ZeroAddress,
 			rollupAddress,

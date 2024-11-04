@@ -10,16 +10,10 @@ import { loadFullBlocks, postBlock } from '../utils/rollup'
 import { getRandomSalt } from '../utils/rand'
 
 describe('Rollup', function () {
-	let mockL2ScrollMessenger: MockL2ScrollMessenger
 	let registry: BlockBuilderRegistry
 	let rollup: Rollup
 
 	this.beforeEach(async function () {
-		const mockL2ScrollMessengerFactory = await ethers.getContractFactory(
-			'MockL2ScrollMessenger',
-		)
-		mockL2ScrollMessenger = await mockL2ScrollMessengerFactory.deploy()
-
 		const registryFactory = await ethers.getContractFactory(
 			'BlockBuilderRegistry',
 		)
@@ -39,7 +33,6 @@ describe('Rollup', function () {
 			kind: 'uups',
 		})) as unknown as Contribution
 		await rollup.initialize(
-			await mockL2ScrollMessenger.getAddress(),
 			ethers.ZeroAddress,
 			await registry.getAddress(),
 			await contribution.getAddress(),
@@ -68,50 +61,50 @@ describe('Rollup', function () {
 		expect(blockHashes[2]).to.equal(fullBlocks[2].blockHash)
 	})
 
-	const calcProcessDepositsGas = async (
-		depositHashes: string[],
-	): Promise<bigint> => {
-		const message = rollup.interface.encodeFunctionData('processDeposits', [
-			0,
-			depositHashes,
-		])
-		const tx = await mockL2ScrollMessenger.relayMessage(
-			ethers.ZeroAddress,
-			await rollup.getAddress(),
-			0,
-			0,
-			message,
-		)
-		const receipt = await tx.wait()
-		if (!receipt) {
-			throw new Error('no receipt')
-		}
-		return receipt.gasUsed
-	}
+	// const calcProcessDepositsGas = async (
+	// 	depositHashes: string[],
+	// ): Promise<bigint> => {
+	// 	const message = rollup.interface.encodeFunctionData('processDeposits', [
+	// 		0,
+	// 		depositHashes,
+	// 	])
+	// 	const tx = await mockL2ScrollMessenger.relayMessage(
+	// 		ethers.ZeroAddress,
+	// 		await rollup.getAddress(),
+	// 		0,
+	// 		0,
+	// 		message,
+	// 	)
+	// 	const receipt = await tx.wait()
+	// 	if (!receipt) {
+	// 		throw new Error('no receipt')
+	// 	}
+	// 	return receipt.gasUsed
+	// }
 
-	it('process deposit gas for 1 deposit', async function () {
-		console.log(
-			'Gas for 1 hash:',
-			await calcProcessDepositsGas([getRandomSalt()]),
-		)
-	})
+	// it('process deposit gas for 1 deposit', async function () {
+	// 	console.log(
+	// 		'Gas for 1 hash:',
+	// 		await calcProcessDepositsGas([getRandomSalt()]),
+	// 	)
+	// })
 
-	it('process deposit gas for 2 deposit', async function () {
-		console.log(
-			'Gas for 2 hashes:',
-			await calcProcessDepositsGas([getRandomSalt(), getRandomSalt()]),
-		)
-	})
+	// it('process deposit gas for 2 deposit', async function () {
+	// 	console.log(
+	// 		'Gas for 2 hashes:',
+	// 		await calcProcessDepositsGas([getRandomSalt(), getRandomSalt()]),
+	// 	)
+	// })
 
-	it('process deposit gas for 4 deposit', async function () {
-		console.log(
-			'Gas for 4 hashes:',
-			await calcProcessDepositsGas([
-				getRandomSalt(),
-				getRandomSalt(),
-				getRandomSalt(),
-				getRandomSalt(),
-			]),
-		)
-	})
+	// it('process deposit gas for 4 deposit', async function () {
+	// 	console.log(
+	// 		'Gas for 4 hashes:',
+	// 		await calcProcessDepositsGas([
+	// 			getRandomSalt(),
+	// 			getRandomSalt(),
+	// 			getRandomSalt(),
+	// 			getRandomSalt(),
+	// 		]),
+	// 	)
+	// })
 })

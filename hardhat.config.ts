@@ -29,6 +29,10 @@ const config: HardhatUserConfig = {
 			url: 'https://scroll-testnet.rpc.grove.city/v1/a7a7c8e2',
 			accounts,
 		},
+		citreaTestnet: {
+			url: 'https://rpc.testnet.citrea.xyz',
+			accounts,
+		}
 	},
 }
 

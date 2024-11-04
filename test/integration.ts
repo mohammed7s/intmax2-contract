@@ -23,8 +23,6 @@ import {
 } from '../utils/events'
 
 describe('Integration', function () {
-	let l1ScrollMessenger: MockL1ScrollMessenger
-	let l2ScrollMessenger: MockL2ScrollMessenger
 	let l1Contribution: Contribution
 	let l2Contribution: Contribution
 	let withdrawalVerifier: MockPlonkVerifier
@@ -52,18 +50,6 @@ describe('Integration', function () {
 		l2Contribution = (await upgrades.deployProxy(contributionFactory, [], {
 			kind: 'uups',
 		})) as unknown as Contribution
-
-		// scroll messanger deployment
-		const MockL1ScrollMessenger_ = await ethers.getContractFactory(
-			'MockL1ScrollMessenger',
-		)
-		l1ScrollMessenger =
-			(await MockL1ScrollMessenger_.deploy()) as MockL1ScrollMessenger
-		const MockL2ScrollMessenger_ = await ethers.getContractFactory(
-			'MockL2ScrollMessenger',
-		)
-		l2ScrollMessenger =
-			(await MockL2ScrollMessenger_.deploy()) as MockL2ScrollMessenger
 
 		// plonk verifier deployment
 		const MockPlonkVerifier_ =
@@ -100,8 +86,6 @@ describe('Integration', function () {
 
 		// get address
 		const testTokenAddress = await testToken.getAddress()
-		const l1ScrollMessengerAddress = await l1ScrollMessenger.getAddress()
-		const l2ScrollMessengerAddress = await l2ScrollMessenger.getAddress()
 		const withdrawalVerifierAddress = await withdrawalVerifier.getAddress()
 		const fraudVerifierAddress = await fraudVerifier.getAddress()
 		const rollupAddress = await rollup.getAddress()
@@ -113,7 +97,6 @@ describe('Integration', function () {
 
 		// L1 initialize
 		await liquidity.initialize(
-			l1ScrollMessengerAddress,
 			rollupAddress,
 			withdrawalAddress,
 			analyzer.address,
@@ -127,13 +110,11 @@ describe('Integration', function () {
 
 		// L2 initialize
 		await rollup.initialize(
-			l2ScrollMessengerAddress,
 			liquidityAddress,
 			registryAddress,
 			await l2Contribution.getAddress(),
 		)
 		await withdrawal.initialize(
-			l2ScrollMessenger,
 			withdrawalVerifierAddress,
 			liquidity,
 			rollupAddress,
@@ -182,40 +163,12 @@ describe('Integration', function () {
 			.analyzeAndRelayDeposits(depositId, [], 400_000, {
 				value: ethers.parseEther('0.1'), // will be refunded automatically
 			})
-		const relayedEvent = await getLastDepositsAnalyzedAndRelayedEvent(
-			liquidity,
-			0,
-		)
-		const { message } = relayedEvent.args
-		// this is not required in the production environment,
-		// because scroll messenger will relay the message to L2 automatically.
-		// but for testing, we need to call relayMessage manually.
-		{
-			// get message nonce
-			const sentEvent = await getLastSentEvent(
-				await l1ScrollMessenger.getAddress(),
-				await liquidity.getAddress(),
-				0,
-			)
-			const { messageNonce, gasLimit } = sentEvent.args
-			const from = await liquidity.getAddress()
-			const to = await rollup.getAddress()
-			const value = 0
-			// notice: this may fail silently if the gasLimit is not enough.
-			await l2ScrollMessenger.relayMessage(
-				from,
-				to,
-				value,
-				messageNonce,
-				message,
-				{ gasLimit },
-			)
-		}
 
 		// check deposit
 		const depositProcessedEvent = (
 			await rollup.queryFilter(rollup.filters.DepositsProcessed())
 		)[0]
+
 		const { lastProcessedDepositId } = depositProcessedEvent.args
 		expect(lastProcessedDepositId).to.be.eq(depositId)
 	})
@@ -249,28 +202,7 @@ describe('Integration', function () {
 		)
 		const { lastDirectWithdrawalId, lastClaimableWithdrawalId } =
 			withdrawalsQueuedEvent.args
-		const sentEvent = await getLastSentEvent(
-			await l2ScrollMessenger.getAddress(),
-			await withdrawal.getAddress(),
-			0,
-		)
-		const { message, messageNonce } = sentEvent.args
-		// relay by l1 scroll messenger
-		const from = await withdrawal.getAddress()
-		const to = await liquidity.getAddress()
-		const value = 0
-		const proof = {
-			batchIndex: 0,
-			merkleProof: '0x',
-		}
-		await l1ScrollMessenger.relayMessageWithProof(
-			from,
-			to,
-			value,
-			messageNonce,
-			message,
-			proof,
-		)
+		
 		// check event
 		const directProcessEvent = (
 			await liquidity.queryFilter(
