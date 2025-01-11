@@ -25,7 +25,6 @@ contract Withdrawal is IWithdrawal, UUPSUpgradeable, OwnableUpgradeable {
 	using Byte32Lib for bytes32;
 
 	IPlonkVerifier private withdrawalVerifier;
-	IL2ScrollMessenger private l2ScrollMessenger;
 	IRollup private rollup;
 	address private liquidity;
 	IContribution private contribution;
@@ -66,7 +65,6 @@ contract Withdrawal is IWithdrawal, UUPSUpgradeable, OwnableUpgradeable {
 		}
 		__Ownable_init(_admin);
 		__UUPSUpgradeable_init();
-		l2ScrollMessenger = IL2ScrollMessenger(_scrollMessenger);
 		withdrawalVerifier = IPlonkVerifier(_withdrawalVerifier);
 		rollup = IRollup(_rollup);
 		contribution = IContribution(_contribution);
@@ -151,34 +149,15 @@ contract Withdrawal is IWithdrawal, UUPSUpgradeable, OwnableUpgradeable {
 			}
 		}
 
-		bytes memory message = abi.encodeWithSelector(
-			ILiquidity.processWithdrawals.selector,
+		ILiquidity(liquidity).processWithdrawals(
 			directWithdrawals,
 			claimableWithdrawals
 		);
-		_relayMessage(message);
 
 		contribution.recordContribution(
 			keccak256("WITHDRAWAL"),
 			_msgSender(),
 			directWithdrawalCounter + claimableWithdrawalCounter
-		);
-	}
-
-	// The specification of ScrollMessenger may change in the future.
-	// https://docs.scroll.io/en/developers/l1-and-l2-bridging/the-scroll-messenger/
-	function _relayMessage(bytes memory message) private {
-		uint256 value = 0; // relay to non-payable function
-		// In the current implementation of ScrollMessenger, the `gasLimit` is simply included in the L2 event log
-		// and does not impose any restrictions on the L1 gas limit. However, considering the possibility of
-		// future implementation changes, we will specify a maximum value.
-		uint256 gasLimit = type(uint256).max;
-		l2ScrollMessenger.sendMessage{value: value}(
-			liquidity,
-			value,
-			message,
-			gasLimit,
-			_msgSender()
 		);
 	}
 
