@@ -55,7 +55,6 @@ async function main() {
 		console.log('Initializing Rollup')
 		const tx = await rollup.initialize(
 			env.ADMIN_ADDRESS,
-			await getL2MessengerAddress(),
 			deployedL1Contracts.liquidity,
 			deployedL2Contracts.l2Contribution,
 		)
@@ -70,7 +69,6 @@ async function main() {
 		console.log('Initializing Withdrawal')
 		const tx = await withdrawal.initialize(
 			env.ADMIN_ADDRESS,
-			await getL2MessengerAddress(),
 			deployedL2Contracts.withdrawalPlonkVerifier,
 			deployedL1Contracts.liquidity,
 			deployedL2Contracts.rollup,

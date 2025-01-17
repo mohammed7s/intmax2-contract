@@ -16,19 +16,6 @@ const env = cleanEnv(process.env, {
 
 async function main() {
 	let deployedContracts = await readDeployedContracts()
-	if (!deployedContracts.mockL1ScrollMessenger) {
-		console.log('deploying mockL1ScrollMessenger')
-		const MockL1ScrollMessenger_ = await ethers.getContractFactory(
-			'MockL1ScrollMessenger',
-		)
-		const l1ScrollMessenger = await MockL1ScrollMessenger_.deploy()
-		const deployedContracts = await readDeployedContracts()
-		await writeDeployedContracts({
-			mockL1ScrollMessenger: await l1ScrollMessenger.getAddress(),
-			...deployedContracts,
-		})
-		await sleep(30)
-	}
 
 	if (!deployedContracts.l1Contribution) {
 		console.log('deploying l1Contribution')
@@ -68,7 +55,6 @@ async function main() {
 			liquidityFactory,
 			[
 				env.ADMIN_ADDRESS,
-				await getL1MessengerAddress(),
 				deployedL2Contracts.rollup,
 				deployedL2Contracts.withdrawal,
 				env.ANALYZER_ADDRESS,

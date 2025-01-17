@@ -38,7 +38,6 @@ contract Withdrawal is IWithdrawal, UUPSUpgradeable, OwnableUpgradeable {
 
 	function initialize(
 		address _admin,
-		address _scrollMessenger,
 		address _withdrawalVerifier,
 		address _liquidity,
 		address _rollup,
@@ -46,9 +45,6 @@ contract Withdrawal is IWithdrawal, UUPSUpgradeable, OwnableUpgradeable {
 		uint256[] memory _directWithdrawalTokenIndices
 	) external initializer {
 		if (_admin == address(0)) {
-			revert AddressZero();
-		}
-		if (_scrollMessenger == address(0)) {
 			revert AddressZero();
 		}
 		if (_withdrawalVerifier == address(0)) {
