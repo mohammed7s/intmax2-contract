@@ -50,7 +50,9 @@ async function main() {
 		}
 
 		const liquidityFactory = await ethers.getContractFactory('Liquidity')
+		console.log("liquidityFactory", liquidityFactory);
 		const initialERC20Tokens = [getUSDCAddress(), getWBTCAddress()]
+		console.log("initialERC20Tokens", initialERC20Tokens); 
 		const liquidity = await upgrades.deployProxy(
 			liquidityFactory,
 			[
@@ -64,7 +66,11 @@ async function main() {
 			{
 				kind: 'uups',
 			},
-		)
+		);
+		// Wait for deployment to be mined
+		await liquidity.waitForDeployment()
+		const liquidityAddress = await liquidity.getAddress()
+		console.log('Liquidity contract deployed to:', liquidityAddress)
 
 		// grant roles
 		if (!deployedContracts.l1Contribution) {
@@ -76,7 +82,10 @@ async function main() {
 		)
 		await l1Contribution.grantRole(
 			ethers.solidityPackedKeccak256(['string'], ['CONTRIBUTOR']),
-			liquidity,
+			await liquidity.getAddress(),
+			{
+				gasPrice: ethers.parseUnits("30", "gwei")  // Using a fixed value
+			},
 		)
 		console.log('granted role')
 

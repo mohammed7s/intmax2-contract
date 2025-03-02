@@ -2,8 +2,11 @@ import { ethers, network } from 'hardhat'
 import { readDeployedContracts } from './io'
 
 export const getUSDCAddress = () => {
-	if (network.name === 'sepolia') {
-		return '0xf08A50178dfcDe18524640EA6618a1f965821715'
+	if (network.name === 'rootstockTestnet') {
+		return '0xbB739A6e04d07b08E38B66ba137d0c9Cd270c750'
+	}
+	if (network.name === 'citreaTestnet') {
+		return '0xb669dC8cC6D044307Ba45366C0c836eC3c7e31AA'
 	}
 	if (network.name === 'localhost') {
 		// provisional measures
@@ -14,8 +17,11 @@ export const getUSDCAddress = () => {
 }
 
 export const getWBTCAddress = () => {
-	if (network.name === 'sepolia') {
-		return '0x92f3B59a79bFf5dc60c0d59eA13a44D082B2bdFC'
+	if (network.name === 'rootstockTestnet') {
+		return '0x31974a4970BADA0ca9BcDe2E2eE6fC15922c5334'
+	}
+	if (network.name === 'citreaTestnet') {
+		return '0x0000000000000000000000000000000000000002'
 	}
 	if (network.name === 'localhost') {
 		// provisional measures

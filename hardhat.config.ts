@@ -42,6 +42,17 @@ const config: HardhatUserConfig = {
 			url: `https://scroll-sepolia.g.alchemy.com/v2/${env.ALCHEMY_KEY}`,
 			accounts,
 		},
+		rootstockTestnet: {
+			url: 'https://rootstock-testnet.g.alchemy.com/v2/${env.ALCHEMY_KEY}',
+			accounts,
+			chainId: 31,
+		},
+		citreaTestnet: {
+			url: 'https://rpc.testnet.citrea.xyz',
+			accounts,
+			chainId: 5115,
+			gasPrice: 20000000000, // 20 Gwei, adjust as needed
+		},
 	},
 	docgen: {
 		exclude: ['test'],

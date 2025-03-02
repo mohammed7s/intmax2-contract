@@ -1,0 +1,10 @@
+{
+    "l1Contribution": "0x304a0C70973C1ac1F1ef7749E34e03f998Ea0C1B",
+    "l2Contribution": "0x310553E784fEAA42dE8C63dd91f95A97491c9a52",
+    "testErc20": "0xB5e479ee461f7b831a1149a3E1331CdcdAaF0245",
+    "withdrawalPlonkVerifier": "0xFa3ff68D391fFEb1c8C65f1952BAE5B8269D4F99",
+    "rollup": "0x1B9B47eD0dd3238949E84451311CbD52a067379c",
+    "withdrawal": "0x2F26e295B128f43CBf3B96E10ae415c951468F61",
+    "blockBuilderRegistry": "0xCAF070816731dac0CF199ed4c2eA37da5575344a",
+    "liquidity": "0x8aD80A5ecf225C5c9E8C1c8EEf9c1f02af9d3db6"
+}

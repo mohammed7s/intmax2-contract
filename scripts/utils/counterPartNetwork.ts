@@ -16,5 +16,11 @@ export function getCounterPartNetwork(): string {
 	if (network.name === 'scroll') {
 		return 'mainnet'
 	}
+	if (network.name === 'rootstockTestnet') {
+		return 'rootstockTestnet'
+	}
+	if (network.name === 'citreaTestnet') {
+		return 'citreaTestnet'
+	}
 	throw new Error('unknown network')
 }
